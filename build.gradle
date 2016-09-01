@@ -1,0 +1,81 @@
+// Apply the java plugin to add support for Java
+apply plugin: 'java'
+apply plugin: "spring-boot"
+
+
+version = '0.0.1-SNAPSHOT'
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    // Use 'jcenter' for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+        jcenter()
+        mavenCentral()
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web:1.4.0.RELEASE")
+}
+
+// Netflix Nebula ospackage plugin
+buildscript {
+    ext {
+        osPackageVersion = "3.4.0"
+        springBootVersion = "1.4.0-RELEASE"
+    }
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.netflix.nebula:gradle-ospackage-plugin:${osPackageVersion}")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.0.RELEASE")
+    }
+}
+
+springBoot {
+    // Allows us to run the jar directly from the command line, e.g. ./daemon-demo-0.0.1.jar
+    executable = true
+    // Excludes the devtools package from production builds
+    excludeDevtools = true
+}
+
+apply plugin: "nebula.ospackage"
+
+ospackage {
+	
+    // Uses the main project version
+    version = "${project.version}"
+
+    /* Could be anything - in our production builds,
+       this is set to the git commit hash */
+    release = 1
+
+    os = LINUX
+    type = BINARY
+    arch = 'all'
+
+
+	// Sets our working directory and permissions, basically
+    into "/opt/local/venturus"
+    user "venturus"
+    permissionGroup "venturus"
+    
+    // Copy the actual .jar file
+    from(jar.outputs.files) {
+        // Strip the version from the jar filename
+        rename { String fileName ->
+            fileName.replace("-${project.version}", "")
+        }
+        fileMode 0500
+        into "bin"
+    }
+}
+
+buildDeb {
+    user "venturus"
+    permissionGroup "venturus"
+    directory("/opt/local/venturus/log", 0755)
+    link("/etc/init.d/venturus", "/opt/local/venturus/bin/venturus.jar")
+    link("/opt/local/daemon-demo/bin/daemon-demo.conf", "/opt/local/daemon-demo/conf/daemon-demo.conf")
+}
