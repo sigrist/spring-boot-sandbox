@@ -1,23 +1,25 @@
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
 apply plugin: "spring-boot"
+apply plugin: "nebula.ospackage"
 
 
+// Set the project version
 version = '0.0.1-SNAPSHOT'
 
-// In this section you declare where to find the dependencies of your project
+
+// Where to look for the dependencies
 repositories {
-    // Use 'jcenter' for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
         jcenter()
         mavenCentral()
 }
 
+// Our dependencies
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web:1.4.0.RELEASE")
 }
 
-// Netflix Nebula ospackage plugin
+// Configuration for the build script
 buildscript {
     ext {
         osPackageVersion = "3.4.0"
@@ -33,15 +35,14 @@ buildscript {
     }
 }
 
+// Spring Boot configuration
+// We want a executable jar file
 springBoot {
     // Allows us to run the jar directly from the command line, e.g. ./daemon-demo-0.0.1.jar
     executable = true
-    // Excludes the devtools package from production builds
-    excludeDevtools = true
 }
 
-apply plugin: "nebula.ospackage"
-
+// Netflix Nebula configuration
 ospackage {
 	
     // Uses the main project version
@@ -61,21 +62,25 @@ ospackage {
     user "venturus"
     permissionGroup "venturus"
     
-    // Copy the actual .jar file
+    // For the jar files, we will remove the version from the name
+    // Change the permission to 755
+    // And put it in the bin folder
     from(jar.outputs.files) {
         // Strip the version from the jar filename
         rename { String fileName ->
             fileName.replace("-${project.version}", "")
         }
-        fileMode 0500
+        fileMode 0755
         into "bin"
     }
 }
 
+// Configuration for the DEB file 
 buildDeb {
     user "venturus"
     permissionGroup "venturus"
-    directory("/opt/local/venturus/log", 0755)
-    link("/etc/init.d/venturus", "/opt/local/venturus/bin/venturus.jar")
-    link("/opt/local/daemon-demo/bin/daemon-demo.conf", "/opt/local/daemon-demo/conf/daemon-demo.conf")
+    
+    // Create a symbolic link to execute as a service
+    link("/etc/init.d/spring-boot-sandbox", "/opt/local/venturus/bin/spring-boot-sandbox.jar")
+    
 }
