@@ -6,5 +6,5 @@ dependencies:
 # Artefatos que devem ser salvos
 general:
   artifacts:
-    - "build/libs/*.jar" # relative to the build directory
-    - "build/distributions/*.deb" # relative to the user's home directory
+    - "build/libs" # relative to the build directory
+    - "build/distributions" # relative to the user's home directory
