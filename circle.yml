@@ -1,4 +1,8 @@
 
+dependencies:
+  post:
+    - ./gradlew
+
 # Artefatos que devem ser salvos
 general:
   artifacts:
