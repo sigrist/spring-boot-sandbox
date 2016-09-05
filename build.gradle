@@ -3,6 +3,8 @@ apply plugin: 'java'
 apply plugin: "spring-boot"
 apply plugin: "nebula.ospackage"
 
+defaultTasks 'clean', 'build', 'buildDeb'
+
 
 // Set the project version
 version = '0.0.1-SNAPSHOT'
