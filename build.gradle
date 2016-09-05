@@ -7,7 +7,7 @@ defaultTasks 'clean', 'build', 'buildDeb'
 
 
 // Set the project version
-version = '0.0.1-SNAPSHOT'
+version = '0.0.2-SNAPSHOT'
 
 
 // Where to look for the dependencies
@@ -25,7 +25,7 @@ dependencies {
 buildscript {
     ext {
         osPackageVersion = "3.4.0"
-        springBootVersion = "1.4.0-RELEASE"
+        springBootVersion = "1.4.0.RELEASE"
     }
     repositories {
         jcenter()
@@ -33,14 +33,14 @@ buildscript {
     }
     dependencies {
         classpath("com.netflix.nebula:gradle-ospackage-plugin:${osPackageVersion}")
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.0.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     }
 }
 
 // Spring Boot configuration
 // We want a executable jar file
 springBoot {
-    // Allows us to run the jar directly from the command line, e.g. ./daemon-demo-0.0.1.jar
+    // Allows us to run the jar directly from the command line
     executable = true
 }
 
@@ -58,6 +58,11 @@ ospackage {
     type = BINARY
     arch = 'all'
 
+	// Setup the scripts to run pre/post install/uninstall
+	preInstall file("src/main/scripts/preInstall.sh")
+    postInstall file("src/main/scripts/postInstall.sh")
+    preUninstall file("src/main/scripts/preUninstall.sh")
+    postUninstall file("src/main/scripts/postUninstall.sh")
 
 	// Sets our working directory and permissions, basically
     into "/opt/local/venturus"
